@@ -3,6 +3,9 @@ from pydantic import BaseModel
 from typing import List
 from uuid import uuid4
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
 app = FastAPI()
 
 app.add_middleware(
@@ -13,31 +16,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Pydantic model for a Note
+# Pydantic model for a Note
 class Note(BaseModel):
     title: str
     content: str
 
-# ✅ Each stored note will have an ID
+# Each stored note will have an ID
 class NoteWithID(Note):
     id: str
 
-# 🧠 In-memory "database"
+# In-memory "database"
 notes_db: List[NoteWithID] = []
 
-# 📝 Create a note
+# Create a note
 @app.post("/notes", response_model=NoteWithID)
 def create_note(note: Note):
     new_note = NoteWithID(id=str(uuid4()), **note.dict())
     notes_db.append(new_note)
     return new_note
 
-# 📋 Get all notes
+# Get all notes
 @app.get("/notes", response_model=List[NoteWithID])
 def get_notes():
     return notes_db
 
-# 🔍 Get a single note by ID
+# Get a single note by ID
 @app.get("/notes/{note_id}", response_model=NoteWithID)
 def get_note(note_id: str):
     for note in notes_db:
@@ -45,7 +48,7 @@ def get_note(note_id: str):
             return note
     raise HTTPException(status_code=404, detail="Note not found")
 
-# ❌ Delete a note
+# Delete a note
 @app.delete("/notes/{note_id}")
 def delete_note(note_id: str):
     for i, note in enumerate(notes_db):
@@ -54,7 +57,7 @@ def delete_note(note_id: str):
             return {"message": "Note deleted"}
     raise HTTPException(status_code=404, detail="Note not found")
 
-# ✏️ Edit a note
+# Edit a note
 @app.put("/notes/{note_id}", response_model=NoteWithID)
 def edit_note(note_id: str, updated_note: Note):
     for i, note in enumerate(notes_db):
@@ -62,3 +65,11 @@ def edit_note(note_id: str, updated_note: Note):
             notes_db[i] = NoteWithID(id=note_id, **updated_note.dict())
             return notes_db[i]
     raise HTTPException(status_code=404, detail="Note not found")
+
+# Serve the frontend index.html
+@app.get("/")
+def serve_index():
+    return FileResponse("static/index.html")
+
+# Optional: serve other static files (JS, CSS, etc.)
+app.mount("/static", StaticFiles(directory="static"), name="static")
