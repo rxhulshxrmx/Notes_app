@@ -19,7 +19,7 @@ A minimalistic notes application built with FastAPI and vanilla JavaScript.
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/rxhulshxrmx/notes-app.git
+git clone https://github.com/rxhulshxrmx/Notes_app.git
 cd notes-app
 ```
 
@@ -63,10 +63,6 @@ notes-app/
 
 This project was built as a learning exercise to understand:
 - FastAPI basics
-- RESTful API design
-- Vanilla JavaScript
-- Modern CSS
-- Git and GitHub
 
 ## License
 
